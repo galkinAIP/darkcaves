@@ -90,16 +90,16 @@ static char descLeft[3][200] = {
     };
 
 static char descRight[3][200] = {
-        {" You feel the dark tunnel behind you.\n That's where you came from.\n"},
-        {" There is some dim light coming from the crack in the ceiling. A figure lies on the floor. A knight?\n Could it be... Lancelot?"},
+        {" You feel the dark tunnel behind you. That's where you came from.\n"},
+        {" There is some dim light coming from the crack in the ceiling. A figure lies on the floor. A knight?\n Could it be... Lancelot?\n"},
         {" It is almost too dark to see anything.\n The torch went out. It is noone here.\n"}
     };
 
 static char badEnd[] = 
-    " That's it. You fail. Your friends die. You die too.\n"; 
+    " That's it. You fail. Your friends die. You die too.\n GAME OVER."; 
 
 static char goodEnd[] = 
-    " That's it. You rescued your friends. They are alive.\n You are alive as well. Together you manage to find a way outside.\n"; 
+    " That's it. You rescued your friends. They are alive.\n You are alive as well. Together you manage to find a way outside.\n GAME OVER."; 
 
 
 // Merlin looks around
@@ -158,23 +158,7 @@ void enterCave(char cave) {
     printf("You moved to cave [%s]\n", &cave);
     *merlin.location = cave;
     lookAround();
-    switch (cave){
-        case 'l':
-            // move merlin to the left cave and look around
-            *merlin.location = 'l';
-            lookAround();
-            break;
-        case 'r':
-            // move merlin to the right cave and look around
-            *merlin.location = 'r';
-            lookAround();
-            break;
-        case 'm':
-            // move merlin to the main cave and look around
-            *merlin.location = 'm';
-            lookAround();
-            break;
-    }
+
 }
 
 // reads the choistandintroinput of the player
@@ -228,12 +212,12 @@ int handleChoice (){
         case 'b':
             // if Merlin is not in the main cave but left of right
             if (*merlin.location != 'm'){
-                printf("You turn around to go back to the main cave.\n");
+                printf("You turn around and go back to the main cave.\n");
                 enterCave('m');
             }
             else {
                 if (*persival.location != 'm' || *lancelot.location != 'm'){
-                    printf("%s\n", " The opening is closed by huge boulders. Now way out.\n");
+                    printf("%s\n", " The opening is closed by huge boulders. No way out.\n");
                 } 
             } 
             break;
@@ -266,7 +250,7 @@ void endWell(){
 // the game runs
 void runGame() {
     int isAlive = 1;
-    printf("The game is on.");
+    printf("The game is on.\n");
     while (isAlive){
         if (*merlin.location == 'm'){
             printf("%s\n\n", roundMain);
