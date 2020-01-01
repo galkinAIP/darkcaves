@@ -1,0 +1,76 @@
+  Задача главного персонажа найти в пещере союзников и исцелить как можно больше. 
+  ГП и союзники имеют максимум 100 хр.
+  В пещере есть персонаж может пойти направо, налево и прямо.
+  По каждому из направлений можно найти раненных союзников.
+  С вероятностью в 50 процентов исцеление может помочь. 
+  Если союзник умирает, то у главного героя отнимается 5 хр.
+  Если союзник выживет, то у главного героя хр возрастает на 5.
+  За 1 каст заклинания исцеления можно восстановить 50 хр.
+  В кажной комнате 5 союзников.
+  У каждого остается 50 процентов хр, которые нужно восстановить до 100. 
+  Если у союзника восстанавлвается хп до 100, то он начинает следовать за ГП.
+  Когда ГП исцеляет всех, то он выходит из пещеры выводя за собой союзников. 
+
+
+Merlin has 20 hp
+Knights have hp
+Healing can be applied to Merlin or Knight go wrong
+
+
+You wake up. Through the constant buzzing in your head you can hear disturbing noises. Are those cries? Or screeches of a monster? You feel the cold stone beneath you. And apparently something had been smashed your head... twice at least. And you were left there... to die? You are not ready for that yet, are you? 
+
+// Round one:
+a) try to stand up
+b) close your eyes and prepare to die   
+
+b) With your eyes shut, you wait until the darkeness engulfes you. 
+
+a) Despite the awful headache you gather your last strength and stand up. You drop something in the process and it falls on the floor. You recognize a healer's bag, your mentor's bag! Now it starts to come back. You were on the on your very first mission with the knights of Camelot. All alone, young and unexperienced, but bubling of healing magic. Your head is killing you...
+
+// Next round:
+b) look around
+b) close your eyes and prepare to die   
+
+b) Your knees give out and you drop on the cold stones of the cave. With your eyes shut, you wait until the darkeness engulfes you. 
+
+// Next round:
+
+a) // triggers listtunnels()
+You take a look around. It is dark, but you can distiguish darker patches on the walls. It could be tunnels.  
+There are two choices from the main cave - left and right. 
+Left and right cave have one tunnel each. 
+
+a) go left
+b) go right
+c) look around
+
+// Right cave
+With the healing bag clutched in your sweating hands you make your way to the entrance on your right. The noise seems to be getting louder. 
+// right cave description
+There is some dim light coming from the ceiling. A figure lies on the floor. A knight?
+
+// Next round in the right cave.
+a) approach the figure
+b) run away
+
+a) As you take slow steps towards the figure, it starts to screech, gets on its feet. With trepidation you recognize your friend - a knight. The figure rises their sword upon their head...
+b) The fear overcomes you and run back to the main cave. 
+
+
+What do you do now?
+a) try to heal 
+b) run away 
+
+a) healing() a knights
+  That went badly! You almost fall on the floor again, your healing turned against you. You feel your life force seeping out of you. You are able to dodge the knith's attack, it's just a clean cut. You loose 5 hp.
+  That went well! The knight, your friend and not a foe anymore, shakes their head and still looks dizzy. The knight take their place next to you. Even your head feels better now, you feel the life force returning to you! + 5 hp 
+
+// Next round
+
+
+
+
+
+
+
+
