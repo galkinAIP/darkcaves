@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 
+// some function declarations
 void runGame();
 void initializeMerlin();
 void initializeKnights();
@@ -11,6 +12,10 @@ void endBadly();
 void lookAround();
 int writeToFile();
 void handleChoice();
+int writeStats();
+
+// if DEBUG is 1, debug messages are printed. 
+int DEBUG = 0;
 
 // general struct for the player character
 struct Merlin {
@@ -33,7 +38,7 @@ struct Knight {
     int hp;
     // aka defense, resistanse against healing
     int resistance;
-    // a knght attacks with a sword
+    // a knight attacks with a sword
     int attack;
     // where is the knigth
     // when the knight is healed, he will move to the main cave
@@ -61,11 +66,11 @@ static char roundMain[] =
 
 // look around, go left, go right
 static char roundCave[] =
-    "[a] - look around\n[m] - go back to the main cave\n";
+    "[a] - look around\n[b] - go back to the main cave\n";
 
 // look around, go left, go right
 static char roundHeal[] =
-    "[h] - heal the knight\n[b] - run back to the main cave\n";
+    "[h] - heal the knight\n";
 
 // Merlin is not ready and wants to die.
 static char death[] =
@@ -86,23 +91,23 @@ static char descMain[3][300] = {
 // descriptions left cave
 static char descLeft[3][200] = {
         {" The main cave is right behind you.\n"},
-        {" A torch glimmers from below. in its light you . A figure croaches on the floor, a huge person. A knight?\n Could it be... Persival?"},
-        {" There is some dim light coming from the ceiling.\n There is no one here. It is eery quite.\n"}
+        {" A torch glimmers on the floor. A figure croaches next to it, a bear of a person. A knight?\n Could it be... Persival?"},
+        {" The torch is almost dark now. There is no one here. It is eery quite.\n"}
     };
 
 static char descRight[3][200] = {
         {" You feel the dark tunnel behind you. That's where you came from.\n"},
         {" There is some dim light coming from the crack in the ceiling. A figure lies on the floor. A knight?\n Could it be... Lancelot?\n"},
-        {" It is almost too dark to see anything.\n The torch went out. It is noone here.\n"}
+        {" It is noone here. You hear something from the main cave.\n"}
     };
 
 static char fight[6][200] = {
-    {" You see the knight who is coming after you, sword raised above his head./n"},
-    {" You feel the bubbling of magic in your finger tips and direct it to the knight, your friend. You have to save him./n "},
-    {" Yes! You feel the healing magic around both of you. The knight looks at you and for a moment, his eyes are clear. You feel slightly better.\n"}, 
-    {" The sword slashes, you dodge in the very last moment.\n"},
-    {" The sword comes down on you, you don't have time to dodge.\n"},
-    {" You manage to dodge the kngith's attack just so!/n"}    
+    {" Cautiously you move closer to the knight, concentrating on healing.\n He has the sword pointed to you...\n"},
+    {" You feel the healing magic around both of you. The knight looks at you and for a moment, his eyes are clear, but his sword is still raised.\n Also, you feel slightly better.\n"}, 
+    {" You feel as if the live is seeping out of you. The knight attacks you!\n"},
+    {" But you manage to dodge the knigth's attack just so!\n"},
+    {" The sword comes down on you, you don't have time to dodge. You feel pain where the sword pierces the skin.\n"},
+    {" The knight lowers the sword. He sways as if his strength has left him and pushes himself past you to the tunnel.\n "}
 };
 
 static char badEnd[] = 
@@ -116,15 +121,17 @@ static char goodEnd[] =
 // happens each time Merlin enters a cave
 // depending on his location, the descriptions are chosen
 void lookAround() {
-    char location = *merlin.location;
-    printf("DEBUG: You look around in the %s cave.\n", &location);
-    switch (location)
+    char cave = *merlin.location;
+    if (DEBUG) printf("DEBUG: You look around in the %s cave.\n", &cave);
+            
+    switch (cave)
     {   
         // main cave
         case 'm':
             // write description of the main cave
             printf("%s\n", descMain[0]);
             // check if knights are in cave
+            if (DEBUG) printf("DEBUG: lancelot.location = %s\n", lancelot.location);
             if (*lancelot.location == 'm'){
                 printf("%s\n", descMain[1]);    
             }
@@ -166,10 +173,10 @@ int attempt(){
     srand((unsigned) time(&t));
     randomResult = rand() % 6;
     if(randomResult > 1){
-        printf("DEBUG: healing or attack worked!");
+        if (DEBUG) printf("DEBUG: attempt worked!\n");
         return 1;
     }else{
-        printf("DEBUG: That went badly, healing or attack did not work.");
+        if (DEBUG) printf("DEBUG: attempt did not work.\n");
         return 0;
    }
 }
@@ -177,19 +184,29 @@ int attempt(){
 // Merlin attempts to heal the knight
 void heal(){
     // which knight is it? depends on Merlin's location
+    char cave = *merlin.location;
     // Set a pointer *k to the knight
     struct Knight *k = NULL;
-    if(merlin.location == "r"){
-        k = &lancelot;
-    }
-    else {
-        k = &persival;
-    }
-    while (k->resistance>0) {
+    if (DEBUG) printf("DEBUG: healing, Merlin has %d hp, checking location", merlin.hp);
+    switch (cave){
+        case 'r':
+            if (DEBUG) printf("DEBUG: Here is Lancelot!\n");
+            k = &lancelot;
+            break;
+        case 'l':
+            if (DEBUG) printf("DEBUG: Here is Persival!\n");
+            k = &persival;
+            break;
+        }
+
+    if (DEBUG) printf("DEBUG: attack 3 - lancelot, attack 7 - persival: %d\n", k->attack );
+    // resistance is up until the knight is healed
+    if (k->resistance>0) {
         printf("%s\n", fight[0]);
         // how does healing go?
         if (attempt()) {
-            // the knight is healed and returns to main cave if his resistance is broken
+            // the healing went well!
+            if (DEBUG) printf("DEBUG: healing worked\n");
             k->resistance -= 1;
             // Merling gets one more hp
             merlin.hp += 1;
@@ -198,40 +215,52 @@ void heal(){
         // Merlin fails to heal the knight and the knight attacks Merlin
         else 
         {
+            if (DEBUG) printf("DEBUG: healing did not worked");
             printf("%s\n", fight[2]);
             // merlin looses 2 hp
             merlin.hp -= 2;
+            if (DEBUG) printf("DEBUG merlin.hp = %d\n", merlin.hp);
+                
             // the knight attacks
             // the attack has the same probability to be successfull as a healing attemt
             if (attempt()){ 
                 // the knight manages to atack
-                printf("%s/n", fight[3]);
+                if (DEBUG) printf("DEBUG: attack worked\n");
+                printf("%s\n", fight[4]);
                 merlin.hp = merlin.hp - k->attack + merlin.defense;
-                if (merlin.hp>0){
-                    printf("DEBUG: Merlin survived the fight with %d hp/n", merlin.hp);
-                } 
-                // else would be if Merlin does not have hp left. 
-                // this is handled in the main runGame() routine
-
+                if (DEBUG) printf("DEBUG Merlin survives the fight with %d hp\n", merlin.hp);
             } else {
                 // the attack does not got well, Merlin dodges
                 // no hp points are added or 
-                printf("%s/n", fight[4]);
+                if (DEBUG) printf("DEBUG: attack did not work\n");
+                printf("%s\n", fight[3]);
             }
         }
-        printf("%s\n\n", roundHeal);
-        handleChoice();
+        if (DEBUG) printf("DEBUG: k->resistance = %d\n", k->resistance);
+        printf("%s", roundHeal);        
+    } else {
+        // move knight to main cave
+        if (DEBUG) printf("DEBUG: move knight to main cave.\n");
+        *k->location = 'm';
+        if (DEBUG) printf("DEBUG: k->location = %s\n", k->location);
+        printf("%s\n", fight[5]);    
     }
+    //if (k->resistance > 0){
+    //    printf("%s", roundHeal);
+    //}
+    if (DEBUG) printf("DEBUG: healing round done\n");
 }
 
 // Merlin enters a side cave, left or right
 void enterCave(char cave) {
     // move Merlin to [m]ain, [l]eft or [r]ight cave and look around
-    printf("DEBUG: You moved to cave [%s]\n", &cave);
+    if (DEBUG) printf("DEBUG: You moved to cave [%s]\n", &cave);
     int e = writeToFile();
     *merlin.location = cave;
     lookAround();
-    printf("%s\n", roundHeal);
+    if (cave != 'm' && (*lancelot.location == cave || *persival.location == cave)){
+            printf("%s", roundHeal);
+        }
 }
 
 // reads the choistandintroinput of the player
@@ -244,7 +273,7 @@ char getChoice() {
 // handles the general choices except of during the healing/ fight choices
 void handleChoice (){
     char choice = getChoice();
-    printf("DEBUG: You chose: %s\n", &choice);
+    if (DEBUG) printf("DEBUG: You chose: %s\n", &choice);
     switch (choice)
     { 
         case 'd':
@@ -275,7 +304,7 @@ void handleChoice (){
             // if Merlin is in the main cave go to left tunnel
             if (*merlin.location == 'm'){
                 printf("You chose to go to the left tunnel.\n");
-                enterCave('r');
+                enterCave('l');
             }
             else {
                 printf("%s\n", "There is no left tunnel here.");
@@ -316,41 +345,51 @@ void handleChoice (){
                 printf("There is noone to heal here.\n");
             }
             break;
+        // print statistics
+        case 'p':
+            printf("Print statistics\n");
+            writeStats();
+            break;
+        // some other command
+        default:
+            printf("You check your options. (Wise advise - look above.)\n");
+            break;
     }
 }
 
 // very beginning of the game
 void begin(){
     printf("%s\n", intro);
-    printf("%s\n\n", roundOne);
+    printf("%s\n", roundOne);
     handleChoice();
 };
 
 // Merlin dies
 void endBadly(){
-    printf("%s\n\n", badEnd);
+    printf("%s\n", badEnd);
     }
 // all ends well 
 void endWell(){
-    printf("%s\n\n", goodEnd);
+    printf("%s\n", goodEnd);
 }
 // the game runs
 void runGame() {
-    int isAlive = 1;
-    printf("The game is on.\n");
+    // check if merlin is still alive
     while (merlin.hp>0){
         if (*merlin.location == 'm'){
-            printf("%s\n\n", roundMain);
+            printf("%s\n", roundMain);
             if (*lancelot.location == 'm' && *persival.location == 'm') {
+                // both knights rescued, the game ends.
                 endWell();
                 break;
             }
         } else {
-            printf("%s\n\n", roundCave);
+            printf("%s\n", roundCave);
         }
         handleChoice();           
     }
-    endBadly();
+    // if merlin is dead, end badly
+    if (merlin.hp<=0) endBadly();
 };
 
 // fill knights with stats
@@ -402,11 +441,11 @@ int writeToFile(){
     fprintf(gamesave, "hp: %d\n", merlin.hp);
     fprintf(gamesave, "location: %s\n", merlin.location);
 
-    fprintf(gamesave, "Lancelot stats:");
+    fprintf(gamesave, "Lancelot stats:\n");
     fprintf(gamesave, "hp: %d\n", lancelot.hp);
     fprintf(gamesave, "location: %s\n", lancelot.location);
 
-    fprintf(gamesave, "Persival stats:");
+    fprintf(gamesave, "Persival stats:\n");
     fprintf(gamesave, "hp: %d\n", persival.hp);
     fprintf(gamesave, "location: %s\n", persival.location);
 
@@ -414,6 +453,32 @@ int writeToFile(){
     return 0;
 
 }
+
+
+int writeStats(){
+    /* print some text */
+    printf("Merlin stats:\n");
+    printf(" hp: %d\n", merlin.hp);
+    printf(" location: %s\n", merlin.location);
+    printf(" defense: %d\n", merlin.defense);   
+    printf(" healing: %d\n", merlin.healing);
+
+    printf("Lancelot stats:\n");
+    printf(" hp: %d\n", lancelot.hp);
+    printf(" location: %s\n", lancelot.location);
+    printf(" resistance: %d\n", lancelot.resistance);
+    printf(" attack: %d\n", lancelot.attack);
+
+    printf("Persival stats:\n");
+    printf(" hp: %d\n", persival.hp);
+    printf(" location: %s\n", persival.location);
+    printf(" resistance: %d\n", persival.resistance);
+    printf(" attack: %d\n", persival.attack);
+
+    return 0;
+
+}
+
 
 //main
 int main()
