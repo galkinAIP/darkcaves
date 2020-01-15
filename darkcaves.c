@@ -14,7 +14,7 @@ int writeToFile();
 void handleChoice();
 int writeStats();
 
-// if DEBUG is 1, debug messages are printed. 
+// set DEBUG to 1 to print all the debug messages 
 int DEBUG = 0;
 
 // general struct for the player character
